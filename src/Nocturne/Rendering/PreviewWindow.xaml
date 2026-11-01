@@ -1,0 +1,169 @@
+<Window x:Class="Nocturne.Rendering.PreviewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:rendering="clr-namespace:Nocturne.Rendering"
+        Title="Preview — Nocturne"
+        Icon="pack://application:,,,/Assets/icon.png"
+        Width="960"
+        Height="640"
+        MinWidth="800"
+        MinHeight="560"
+        WindowStyle="None"
+        ResizeMode="CanResize"
+        Background="{StaticResource BackgroundBrush}"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner"
+        PreviewKeyDown="OnPreviewKeyDown"
+        SourceInitialized="OnSourceInitialized">
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0"
+                            CornerRadius="0" UseAeroCaptionButtons="False" />
+    </shell:WindowChrome.WindowChrome>
+
+    <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="44" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Title bar -->
+            <Border Background="{StaticResource BackgroundBrush}" BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="0,0,0,1" MouseLeftButtonDown="OnTitleBarMouseDown">
+                <Grid Margin="14,0,6,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Width="18" Height="18" CornerRadius="4" ClipToBounds="True">
+                            <Image Source="Assets/icon.png" Stretch="UniformToFill"
+                                   RenderOptions.BitmapScalingMode="HighQuality" />
+                        </Border>
+                        <TextBlock Text="Preview" FontSize="12.5" FontWeight="SemiBold" Margin="9,0,0,0"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding Wallpaper.Name}" FontSize="12" Foreground="{StaticResource MutedBrush}"
+                                   Margin="10,0,0,0" VerticalAlignment="Center" MaxWidth="420"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="·" FontSize="12" Foreground="#4A4A52" Margin="8,0"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding Wallpaper.KindLabel}" FontSize="11"
+                                   Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <Button Style="{StaticResource WindowCloseButton}" Content="&#xE8BB;"
+                            HorizontalAlignment="Right" VerticalAlignment="Center" Click="OnCancel" />
+                </Grid>
+            </Border>
+
+            <!-- Stage -->
+            <Border x:Name="Stage" Grid.Row="1" Background="#050507" Margin="22,18,22,12"
+                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="7"
+                    ClipToBounds="True">
+                <Grid>
+                    <Image x:Name="PreviewImage" Stretch="Uniform" Visibility="Collapsed"
+                           RenderOptions.BitmapScalingMode="HighQuality" />
+                    <rendering:VideoSurface x:Name="Surface" Visibility="Collapsed" />
+                    <TextBlock x:Name="UnavailableText" Text="Preview is unavailable for this file."
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               FontSize="12.5" Foreground="{StaticResource MutedBrush}" Visibility="Collapsed" />
+                </Grid>
+            </Border>
+
+            <!-- Transport -->
+            <Border Grid.Row="2" Margin="22,0,22,0" Background="{StaticResource SurfaceBrush}"
+                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14,11">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Slider x:Name="ProgressSlider" Style="{StaticResource DarkSlider}" Minimum="0" Maximum="1"
+                                ValueChanged="OnProgressChanged" VerticalAlignment="Center" />
+                        <TextBlock x:Name="TimeText" Grid.Column="1" Text="0:00 / 0:00" FontSize="11"
+                                   Foreground="{StaticResource MutedBrush}" Margin="14,0,0,0"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button x:Name="PlayButton" Style="{StaticResource SecondaryButton}" Padding="13,7"
+                                Click="OnTogglePlay" ToolTip="Play or pause">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock x:Name="PlayGlyph" Text="&#xE769;" FontFamily="{StaticResource IconFont}"
+                                           FontSize="11" Foreground="{StaticResource TextBrush}"
+                                           VerticalAlignment="Center" />
+                                <TextBlock x:Name="PlayText" Text="Pause" Margin="7,0,0,0"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <CheckBox x:Name="MuteToggle" Grid.Column="1" Style="{StaticResource ToggleSwitch}"
+                                  Content="Mute" VerticalAlignment="Center" Margin="16,0,0,0"
+                                  IsChecked="{Binding Settings.MuteAudio, Mode=TwoWay}" />
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0"
+                                    IsEnabled="{Binding Settings.MuteAudio, Converter={StaticResource InverseBool}}">
+                            <TextBlock Text="&#xE767;" FontFamily="{StaticResource IconFont}" FontSize="11"
+                                       Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" />
+                            <Slider x:Name="VolumeSlider" Style="{StaticResource DarkSlider}" Width="92" Margin="8,0,0,0"
+                                    Minimum="0" Maximum="100" Value="{Binding Settings.Volume, Mode=TwoWay}"
+                                    VerticalAlignment="Center" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+                            <TextBlock Text="Speed" FontSize="11" Foreground="{StaticResource MutedBrush}"
+                                       VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <ComboBox x:Name="SpeedBox" Width="82" Height="32" SelectionChanged="OnSpeedChanged">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding StringFormat={}{0:0.##}×}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+                            <TextBlock Text="Scale" FontSize="11" Foreground="{StaticResource MutedBrush}"
+                                       VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <ComboBox x:Name="ScaleBox" Width="122" Height="32" SelectionChanged="OnScaleChanged" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="Display" FontSize="11" Foreground="{StaticResource MutedBrush}"
+                                       VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <ComboBox x:Name="DisplayBox" Width="188" Height="32" DisplayMemberPath="Label" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Footer -->
+            <Grid Grid.Row="3" Margin="24,14,24,18">
+                <TextBlock Text="Double-click a card to preview. Volume, speed and scaling changes are saved."
+                           FontSize="11" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Cancel" Style="{StaticResource GhostButton}" Margin="0,0,8,0"
+                            Click="OnCancel" />
+                    <Button Style="{StaticResource PrimaryButton}" Click="OnApply">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE73E;" FontFamily="{StaticResource IconFont}" FontSize="10"
+                                       Foreground="White" VerticalAlignment="Center" />
+                            <TextBlock Text="Apply wallpaper" Margin="7,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

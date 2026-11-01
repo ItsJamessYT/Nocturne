@@ -1,0 +1,114 @@
+<UserControl x:Class="Nocturne.Views.HomeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="clr-namespace:Nocturne.Models">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,10,0">
+        <StackPanel Margin="0,0,0,28">
+
+            <!-- Current wallpaper -->
+            <Border Height="240" CornerRadius="10" ClipToBounds="True"
+                    Background="{Binding CurrentWallpaper.ThumbnailPath, Converter={StaticResource HeroBrush}}">
+                <Grid>
+                    <Border Background="{StaticResource HeroShade}" />
+
+                    <Grid Margin="22,18">
+                        <StackPanel VerticalAlignment="Top" Orientation="Horizontal"
+                                    Visibility="{Binding HasCurrentWallpaper, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="{Binding CurrentWallpaper.KindLabel}" FontSize="10"
+                                       FontWeight="SemiBold" Foreground="#C8FFFFFF" />
+                            <TextBlock Text="·" FontSize="10" Foreground="#88FFFFFF" Margin="7,0" />
+                            <TextBlock Text="{Binding CurrentWallpaper.SizeText}" FontSize="10"
+                                       Foreground="#C8FFFFFF" />
+                        </StackPanel>
+
+                        <StackPanel VerticalAlignment="Bottom"
+                                    Visibility="{Binding HasCurrentWallpaper, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="{Binding CurrentWallpaperName}" FontFamily="{StaticResource DisplayFont}"
+                                       FontSize="24" FontWeight="SemiBold" Foreground="White"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{Binding EngineDetail}" FontSize="12" Foreground="#B8FFFFFF"
+                                       Margin="0,6,0,0" TextTrimming="CharacterEllipsis" MaxWidth="640"
+                                       HorizontalAlignment="Left" />
+                            <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+                                <Button Style="{StaticResource PrimaryButton}"
+                                        Command="{Binding ApplyCommand}"
+                                        CommandParameter="{Binding CurrentWallpaper}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#xE768;" FontFamily="{StaticResource IconFont}" FontSize="10"
+                                                   Foreground="White" VerticalAlignment="Center" />
+                                        <TextBlock Text="Apply to desktop" Margin="7,0,0,0" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Style="{StaticResource GhostButton}" Margin="8,0,0,0"
+                                        Command="{Binding PreviewCommand}"
+                                        CommandParameter="{Binding CurrentWallpaper}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#xE7B3;" FontFamily="{StaticResource IconFont}" FontSize="10"
+                                                   Foreground="{StaticResource TextBrush}" VerticalAlignment="Center" />
+                                        <TextBlock Text="Preview" Margin="7,0,0,0" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Content="{Binding PauseButtonText}" Style="{StaticResource GhostButton}"
+                                        Margin="8,0,0,0" Command="{Binding TogglePauseCommand}" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Empty state -->
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Visibility="{Binding HasCurrentWallpaper, Converter={StaticResource InverseBoolToVis}}">
+                            <TextBlock Text="No wallpaper playing" FontFamily="{StaticResource DisplayFont}"
+                                       FontSize="20" FontWeight="SemiBold" Foreground="White"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Add a video, GIF or image to bring your desktop to life."
+                                       FontSize="12" Foreground="#B8FFFFFF" HorizontalAlignment="Center"
+                                       Margin="0,7,0,0" />
+                            <Button Content="Add wallpapers" Style="{StaticResource PrimaryButton}"
+                                    Command="{Binding ImportCommand}" HorizontalAlignment="Center"
+                                    Margin="0,18,0,0" />
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- Recently added -->
+            <Grid Margin="0,26,0,12">
+                <TextBlock Text="Recently added" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" />
+                <Button Content="View all" Style="{StaticResource LinkButton}" HorizontalAlignment="Right"
+                        VerticalAlignment="Center" Command="{Binding NavigateCommand}"
+                        CommandParameter="{x:Static models:AppPage.Library}" />
+            </Grid>
+
+            <ItemsControl ItemsSource="{Binding Recent}"
+                          ItemTemplate="{StaticResource WallpaperCardTemplate}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+
+            <Border Style="{StaticResource SectionCard}" Padding="24"
+                    Visibility="{Binding HasRecent, Converter={StaticResource InverseBoolToVis}}">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="Nothing here yet" FontSize="13" FontWeight="SemiBold"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="Your newest wallpapers will show up here."
+                               Style="{StaticResource MutedText}" HorizontalAlignment="Center" Margin="0,4,0,0" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource SectionCard}" Padding="20" Margin="0,26,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <Border Width="48" Height="48" CornerRadius="10" ClipToBounds="True">
+                        <Image Source="pack://application:,,,/Assets/icon.png" Stretch="UniformToFill"
+                               RenderOptions.BitmapScalingMode="HighQuality" />
+                    </Border>
+                    <StackPanel Margin="16,0,0,0" VerticalAlignment="Center" MaxWidth="640">
+                        <TextBlock Text="Nocturne" FontSize="14" FontWeight="SemiBold" />
+                        <TextBlock Text="A native live wallpaper engine for Windows. Bring your desktop to life with videos, GIFs and images playing behind your icons."
+                                   Style="{StaticResource MutedText}" Margin="0,4,0,0" TextWrapping="Wrap" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

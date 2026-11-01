@@ -1,0 +1,296 @@
+<Window x:Class="Nocturne.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:models="clr-namespace:Nocturne.Models"
+        xmlns:views="clr-namespace:Nocturne.Views"
+        Title="Nocturne"
+        Icon="Assets/icon.png"
+        Width="1200"
+        Height="760"
+        MinWidth="960"
+        MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}"
+        WindowStyle="None"
+        ResizeMode="CanResize"
+        ShowInTaskbar="True"
+        AllowDrop="True"
+        Drop="OnDrop"
+        DragOver="OnDragOver"
+        StateChanged="OnWindowStateChanged"
+        SourceInitialized="OnSourceInitialized">
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0"
+                            CornerRadius="0" UseAeroCaptionButtons="False" />
+    </shell:WindowChrome.WindowChrome>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- ================= Title bar ================= -->
+        <Border Grid.Row="0" Background="{StaticResource BackgroundBrush}"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1"
+                MouseLeftButtonDown="OnTitleBarMouseDown">
+            <Grid Margin="14,0,6,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="18" Height="18" CornerRadius="4" ClipToBounds="True">
+                        <Image Source="Assets/icon.png" Stretch="UniformToFill"
+                               RenderOptions.BitmapScalingMode="HighQuality" />
+                    </Border>
+                    <TextBlock Text="Nocturne" FontSize="12.5" FontWeight="SemiBold" Margin="9,0,0,0"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button Style="{StaticResource WindowButton}" Content="&#xE921;" Click="OnMinimize" ToolTip="Minimize" />
+                    <Button x:Name="MaximizeButton" Style="{StaticResource WindowButton}" Content="&#xE922;"
+                            Click="OnMaximize" ToolTip="Maximize" />
+                    <Button Style="{StaticResource WindowCloseButton}" Content="&#xE8BB;" Click="OnClose" ToolTip="Close" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ================= Shell ================= -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="184" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Sidebar -->
+            <Border Background="{StaticResource BackgroundBrush}"
+                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
+                <Grid Margin="12,14,12,12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel>
+                        <ToggleButton Style="{StaticResource NavToggle}"
+                                      IsChecked="{Binding CurrentPage, Converter={StaticResource EnumEquals}, ConverterParameter=Home, Mode=OneWay}"
+                                      Command="{Binding NavigateCommand}"
+                                      CommandParameter="{x:Static models:AppPage.Home}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE80F;" FontFamily="Segoe Fluent Icons" FontSize="14" Width="24"
+                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}" />
+                                <TextBlock Text="Home" FontSize="12.5" Margin="2,0,0,0"
+                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}" />
+                            </StackPanel>
+                        </ToggleButton>
+
+                        
+
+                        <ToggleButton Style="{StaticResource NavToggle}" Margin="0,2,0,0"
+                                      IsChecked="{Binding CurrentPage, Converter={StaticResource EnumEquals}, ConverterParameter=Library, Mode=OneWay}"
+                                      Command="{Binding NavigateCommand}"
+                                      CommandParameter="{x:Static models:AppPage.Library}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE91B;" FontFamily="Segoe Fluent Icons" FontSize="14" Width="24"
+                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}" />
+                                <TextBlock Text="My wallpapers" FontSize="12.5" Margin="2,0,0,0"
+                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}" />
+                            </StackPanel>
+                        </ToggleButton>
+
+                        <ToggleButton Style="{StaticResource NavToggle}" Margin="0,2,0,0"
+                                      IsChecked="{Binding CurrentPage, Converter={StaticResource EnumEquals}, ConverterParameter=Favorites, Mode=OneWay}"
+                                      Command="{Binding NavigateCommand}"
+                                      CommandParameter="{x:Static models:AppPage.Favorites}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE734;" FontFamily="Segoe Fluent Icons" FontSize="14" Width="24"
+                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}" />
+                                <TextBlock Text="Favorites" FontSize="12.5" Margin="2,0,0,0"
+                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}" />
+                            </StackPanel>
+                        </ToggleButton>
+
+                        <Grid Margin="9,22,2,8">
+                            <TextBlock Text="Collections" Style="{StaticResource StatLabel}" VerticalAlignment="Center" />
+                            <Button Content="&#xE710;" Style="{StaticResource IconButton}" Width="22" Height="22"
+                                    FontSize="9" HorizontalAlignment="Right" Command="{Binding CreateCollectionCommand}"
+                                    ToolTip="New collection" />
+                        </Grid>
+
+                        <ListBox ItemsSource="{Binding Collections}"
+                                 SelectedItem="{Binding ActiveCollection, Mode=TwoWay}"
+                                 Background="Transparent" BorderThickness="0"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 MaxHeight="320">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Margin" Value="0,1" />
+                                    <Setter Property="Padding" Value="0" />
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="Cursor" Value="Hand" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="Row" CornerRadius="6" Background="Transparent"
+                                                        Padding="9,6">
+                                                    <ContentPresenter />
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Row" Property="Background"
+                                                                Value="{StaticResource Surface2Brush}" />
+                                                    </Trigger>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="Row" Property="Background"
+                                                                Value="{StaticResource Surface2Brush}" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Name}" FontSize="12"
+                                                   Foreground="{StaticResource MutedBrush}"
+                                                   TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                                            <TextBlock Text="{Binding Count}" FontSize="10"
+                                                       Foreground="#5E5E67" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                            <Button Content="x" Style="{StaticResource IconButton}" Width="16" Height="16"
+                                                    FontSize="10" Padding="0"
+                                                    Command="{Binding DataContext.DeleteCollectionCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                    CommandParameter="{Binding}" ToolTip="Delete collection" />
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" Margin="0,12,0,0">
+                        <Border Height="1" Background="{StaticResource BorderBrush}" Margin="2,0,2,10" />
+
+                        <Grid Margin="9,0,4,8">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Ellipse Width="6" Height="6" VerticalAlignment="Center">
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Fill" Value="{StaticResource SuccessBrush}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsEnginePaused}" Value="True">
+                                                    <Setter Property="Fill" Value="#D8A657" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsEngineRunning}" Value="False">
+                                                    <Setter Property="Fill" Value="#4A4A52" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
+                                <TextBlock Text="{Binding EngineStatus}" FontSize="11" Foreground="{StaticResource MutedBrush}"
+                                           Margin="7,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                            <Button Content="{Binding PauseGlyph}" Style="{StaticResource IconButton}" Width="24" Height="24"
+                                    FontSize="9" HorizontalAlignment="Right" Command="{Binding TogglePauseCommand}"
+                                    ToolTip="Pause or resume" />
+                        </Grid>
+
+                        <ToggleButton Style="{StaticResource NavToggle}"
+                                      IsChecked="{Binding CurrentPage, Converter={StaticResource EnumEquals}, ConverterParameter=Settings, Mode=OneWay}"
+                                      Command="{Binding NavigateCommand}"
+                                      CommandParameter="{x:Static models:AppPage.Settings}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE713;" FontFamily="Segoe Fluent Icons" FontSize="14" Width="24"
+                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}" />
+                                <TextBlock Text="Settings" FontSize="12.5" Margin="2,0,0,0"
+                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}" />
+                            </StackPanel>
+                        </ToggleButton>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Main content -->
+            <Grid Grid.Column="1">
+                <Grid Margin="22,16,22,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Margin="0,0,0,18">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{Binding PageTitle}" Style="{StaticResource DisplayHeading}" />
+                            <TextBlock Text="{Binding PageSubtitle}" Style="{StaticResource MutedText}" Margin="0,4,0,0" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                    Visibility="{Binding IsSettingsPage, Converter={StaticResource InverseBoolToVis}}">
+                            <Button Style="{StaticResource PrimaryButton}" Command="{Binding ImportCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE710;" FontFamily="Segoe Fluent Icons" FontSize="10"
+                                               Foreground="White" VerticalAlignment="Center" />
+                                    <TextBlock Text="Add wallpapers" Margin="7,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Grid.Row="1" x:Name="PageHost" ClipToBounds="True">
+                        <views:HomeView x:Name="HomePage" />
+                        <views:LibraryView x:Name="LibraryPage" Visibility="Collapsed" />
+                        <views:FavoritesView x:Name="FavoritesPage" Visibility="Collapsed" />
+                        <views:SettingsView x:Name="SettingsPage" Visibility="Collapsed" />
+                    </Grid>
+                </Grid>
+
+                <!-- Toast -->
+                <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,30,26"
+                        Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1" CornerRadius="7" Padding="13,10" IsHitTestVisible="False">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Setter Property="Opacity" Value="0" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsToastVisible}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1"
+                                                                 Duration="0:0:0.15" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0"
+                                                                 Duration="0:0:0.18" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE73E;" FontFamily="Segoe Fluent Icons" FontSize="10"
+                                   Foreground="{StaticResource AccentSoftBrush}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding ToastMessage}" FontSize="12" VerticalAlignment="Center"
+                                   Margin="9,0,0,0" MaxWidth="420" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
